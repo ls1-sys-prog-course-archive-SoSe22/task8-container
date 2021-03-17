@@ -13,20 +13,13 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-        with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
 
-      - uses: jpetrucciani/mypy-check@master
+      - uses: cachix/install-nix-action@v12
         with:
-          path: 'tests'
-      # Quite slow, find something else
-      #- name: Lint Code Base
-      #  uses: github/super-linter@v3
-      #  env:
-      #    VALIDATE_ALL_CODEBASE: false
-      #    VALIDATE_PYTHON_PYLINT: false
-      #    # somehow weird output
-      #    VALIDATE_PYTHON_ISORT: false
-      #    DEFAULT_BRANCH: main
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          nix_path: nixpkgs=channel:nixpkgs-unstable
+      - name: Black
+        run: cd tests && nix-shell --run "black --check ."
+      - name: Mypy
+        run: cd tests && nix-shell --run "mypy ."
+      - name: Flake8
+        run: cd tests && nix-shell --run "flake8 ."

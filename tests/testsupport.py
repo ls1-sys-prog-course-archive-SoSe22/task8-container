@@ -32,7 +32,7 @@ def project_root() -> Path:
     return PROJECT_ROOT
 
 
-def assert_executable(executable: str, msg: str, path: Optional[str] = None):
+def assert_executable(executable: str, msg: str, path: Optional[str] = None) -> None:
     """
     exits if program does not exists
     """
@@ -131,7 +131,7 @@ def run(
     stdout: _FILE = None,
     input: Optional[str] = None,
     check: bool = True,
-    shell: bool = False
+    shell: bool = False,
 ) -> "subprocess.CompletedProcess[Text]":
     env = os.environ.copy()
     env.update(extra_env)
@@ -158,7 +158,7 @@ def run(
         env=env,
         text=True,
         input=input,
-        shell=shell
+        shell=shell,
     )
 
 

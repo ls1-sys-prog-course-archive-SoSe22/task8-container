@@ -10,7 +10,9 @@ import subprocess
 from pathlib import Path
 from shlex import quote
 from tempfile import NamedTemporaryFile
-from typing import IO, Any, Callable, Dict, List, Optional, Text, Union
+from typing import IO, Any, Callable, Dict, List, Optional, Text, Union, Iterator
+from inspect import getframeinfo, stack
+from contextlib import contextmanager
 from urllib.request import urlopen  # Python 3
 
 TEST_ROOT = Path(__file__).parent.resolve()
@@ -172,6 +174,20 @@ def ensure_download(url: str, dest: Path) -> None:
     if dest.exists():
         return
     download(url, dest)
+
+
+@contextmanager
+def subtest(msg: str) -> Iterator[None]:
+    """
+    Run a subtest, if it fails it will exit the program while printing the error
+    """
+    caller = getframeinfo(stack()[1][0])
+    info(msg + "...")
+    try:
+        yield
+    except Exception as e:
+        warn(f"`{msg}` at {caller.filename}:{caller.lineno} failed with: {e}")
+        sys.exit(1)
 
 
 def download(url: str, dest: Path) -> None:

@@ -45,6 +45,7 @@ def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
     """
     Color with terminal colors
     """
+
     def wrapper(text: str) -> None:
         if HAS_TTY:
             print(f"\x1b[{code}m{text}\x1b[0m", file=file)

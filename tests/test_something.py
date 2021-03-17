@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import sys
 import os
+import sys
 
-from testsupport import run_project_executable, warn, info
+from testsupport import info, run_project_executable, warn
+
 
 def main() -> None:
     # Replace with the executable you want to test

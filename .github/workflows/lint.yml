@@ -20,10 +20,13 @@ jobs:
       - uses: jpetrucciani/mypy-check@master
         with:
           path: 'tests'
-      - name: Lint Code Base
-        uses: github/super-linter@v3.15.3
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_PYTHON_PYLINT: false
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Quite slow, find something else
+      #- name: Lint Code Base
+      #  uses: github/super-linter@v3
+      #  env:
+      #    VALIDATE_ALL_CODEBASE: false
+      #    VALIDATE_PYTHON_PYLINT: false
+      #    # somehow weird output
+      #    VALIDATE_PYTHON_ISORT: false
+      #    DEFAULT_BRANCH: main
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -7,5 +7,5 @@
    ```
 3. For running the tests run:
    ```console
-   $ make check`
+   $ make check
    ```

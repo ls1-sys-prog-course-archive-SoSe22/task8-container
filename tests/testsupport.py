@@ -123,7 +123,7 @@ def run_project_executable(
     fullpath = find_executable(exe, path)
     if fullpath is None:
         raise OSError(f"executable '{exe}' not found in {path}")
-    return run([exe] + args, extra_env, stdin, stdout, input, check)
+    return run([fullpath] + args, extra_env, stdin, stdout, input, check)
 
 
 def run(

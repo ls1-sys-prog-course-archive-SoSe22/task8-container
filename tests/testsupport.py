@@ -43,7 +43,7 @@ def assert_executable(executable: str, msg: str, path: Optional[str] = None) -> 
 
 def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
     """
-    Color with terminal colors
+    Print with color if stderr is a tty
     """
 
     def wrapper(text: str) -> None:
@@ -133,6 +133,9 @@ def run(
     check: bool = True,
     shell: bool = False,
 ) -> "subprocess.CompletedProcess[Text]":
+    """
+    Run a program while also pretty print the command that it runs
+    """
     env = os.environ.copy()
     env.update(extra_env)
     env_string = []
@@ -163,6 +166,9 @@ def run(
 
 
 def ensure_download(url: str, dest: Path) -> None:
+    """
+    Download `url` to `dest` if dest does not exists yet
+    """
     if dest.exists():
         return
     download(url, dest)

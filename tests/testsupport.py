@@ -10,7 +10,9 @@ import subprocess
 from pathlib import Path
 from shlex import quote
 from tempfile import NamedTemporaryFile
-from typing import IO, Any, Callable, Dict, List, Optional, Text, Union
+from typing import IO, Any, Callable, Dict, List, Optional, Text, Union, Iterator
+from inspect import getframeinfo, stack
+from contextlib import contextmanager
 from urllib.request import urlopen  # Python 3
 
 TEST_ROOT = Path(__file__).parent.resolve()
@@ -43,7 +45,7 @@ def assert_executable(executable: str, msg: str, path: Optional[str] = None) -> 
 
 def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
     """
-    Color with terminal colors
+    Print with color if stderr is a tty
     """
 
     def wrapper(text: str) -> None:
@@ -133,6 +135,9 @@ def run(
     check: bool = True,
     shell: bool = False,
 ) -> "subprocess.CompletedProcess[Text]":
+    """
+    Run a program while also pretty print the command that it runs
+    """
     env = os.environ.copy()
     env.update(extra_env)
     env_string = []
@@ -163,18 +168,42 @@ def run(
 
 
 def ensure_download(url: str, dest: Path) -> None:
+    """
+    Download `url` to `dest` if dest does not exists yet
+    """
     if dest.exists():
         return
     download(url, dest)
 
 
+@contextmanager
+def subtest(msg: str) -> Iterator[None]:
+    """
+    Run a subtest, if it fails it will exit the program while printing the error
+    """
+    caller = getframeinfo(stack()[1][0])
+    info(msg + "...")
+    try:
+        yield
+    except Exception as e:
+        warn(f"`{msg}` at {caller.filename}:{caller.lineno} failed with: {e}")
+        sys.exit(1)
+
+
 def download(url: str, dest: Path) -> None:
-    print(f"download {url}...")
+    """
+    Download `url` to `dest`
+    """
+    info(f"download {url} to {dest}...")
     response = urlopen(url)
-    with NamedTemporaryFile(dir=dest.parent) as temp:
+    temp = NamedTemporaryFile(dir=dest.parent, delete=False)
+    try:
         while True:
             chunk = response.read(16 * 1024)
             if not chunk:
                 break
             temp.write(chunk)
         os.rename(temp.name, dest)
+    finally:
+        if os.path.exists(temp.name):
+            os.unlink(temp.name)

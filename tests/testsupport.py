@@ -175,12 +175,19 @@ def ensure_download(url: str, dest: Path) -> None:
 
 
 def download(url: str, dest: Path) -> None:
-    print(f"download {url}...")
+    """
+    Download `url` to `dest`
+    """
+    info(f"download {url} to {dest}...")
     response = urlopen(url)
-    with NamedTemporaryFile(dir=dest.parent) as temp:
+    temp = NamedTemporaryFile(dir=dest.parent, delete=False)
+    try:
         while True:
             chunk = response.read(16 * 1024)
             if not chunk:
                 break
             temp.write(chunk)
         os.rename(temp.name, dest)
+    finally:
+        if os.path.exists(temp.name):
+            os.unlink(temp.name)

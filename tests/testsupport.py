@@ -32,7 +32,7 @@ def project_root() -> Path:
     return PROJECT_ROOT
 
 
-def assert_executable(executable: str, msg: str, path: Optional[str] = None):
+def assert_executable(executable: str, msg: str, path: Optional[str] = None) -> None:
     """
     exits if program does not exists
     """
@@ -131,6 +131,7 @@ def run(
     stdout: _FILE = None,
     input: Optional[str] = None,
     check: bool = True,
+    shell: bool = False,
 ) -> "subprocess.CompletedProcess[Text]":
     env = os.environ.copy()
     env.update(extra_env)
@@ -140,6 +141,8 @@ def run(
     pretty_cmd = "$ "
     if len(extra_env) > 0:
         pretty_cmd += " ".join(env_string) + " "
+    if shell:
+        pretty_cmd += "sh -c "
     pretty_cmd += " ".join(map(quote, cmd))
     if isinstance(stdin, io.IOBase):
         pretty_cmd += f" < {stdin.name}"
@@ -147,7 +150,7 @@ def run(
         pretty_cmd += f" > {stdout.name}"
     info(pretty_cmd)
     return subprocess.run(
-        cmd,
+        cmd[0] if shell else cmd,
         cwd=PROJECT_ROOT,
         stdin=stdin,
         stdout=stdout,
@@ -155,6 +158,7 @@ def run(
         env=env,
         text=True,
         input=input,
+        shell=shell,
     )
 
 
@@ -167,7 +171,6 @@ def ensure_download(url: str, dest: Path) -> None:
 def download(url: str, dest: Path) -> None:
     print(f"download {url}...")
     response = urlopen(url)
-    breakpoint()
     with NamedTemporaryFile(dir=dest.parent) as temp:
         while True:
             chunk = response.read(16 * 1024)

@@ -4,15 +4,14 @@ if sys.version_info < (3, 7):
     print("This module assumes at least python 3.7", file=sys.stderr)
     raise Exception("python too old")
 
+import io
+import os
+import subprocess
 from pathlib import Path
 from shlex import quote
-import subprocess
-import os
-import io
 from tempfile import NamedTemporaryFile
-from typing import Optional, Dict, List, Text, IO, Any, Union, Callable
+from typing import IO, Any, Callable, Dict, List, Optional, Text, Union
 from urllib.request import urlopen  # Python 3
-
 
 TEST_ROOT = Path(__file__).parent.resolve()
 PROJECT_ROOT = TEST_ROOT.parent
@@ -46,6 +45,7 @@ def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
     """
     Color with terminal colors
     """
+
     def wrapper(text: str) -> None:
         if HAS_TTY:
             print(f"\x1b[{code}m{text}\x1b[0m", file=file)

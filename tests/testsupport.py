@@ -181,7 +181,7 @@ def subtest(msg: str) -> Iterator[None]:
     """
     Run a subtest, if it fails it will exit the program while printing the error
     """
-    caller = getframeinfo(stack()[1][0])
+    caller = getframeinfo(stack()[2][0])
     info(msg + "...")
     try:
         yield

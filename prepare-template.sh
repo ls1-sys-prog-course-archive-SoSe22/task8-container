@@ -7,7 +7,7 @@ fi
 
 taskname=$1
 
-sed -i -e "s!task-name!${taskname}!" Makefile Cargo.toml
+sed -i -e "s!task-name!${taskname}!g" Makefile Cargo.toml
 mv task-name.cpp "${taskname}.cpp"
 mv task-name.c "${taskname}.c"
 rm "$0"

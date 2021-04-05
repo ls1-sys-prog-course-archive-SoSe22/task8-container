@@ -14,7 +14,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - uses: cachix/install-nix-action@v12
+      - uses: cachix/install-nix-action@v13
         with:
           nix_path: nixpkgs=channel:nixpkgs-unstable
       - name: Black

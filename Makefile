@@ -1,8 +1,8 @@
-# Set you prefererred C compiler here,
-# on github actions gcc-7 till gcc-10 are pre-installed
-CC ?= gcc-10
+# Set you prefererred CFLAGS/compiler compiler here.
+# Our github runner provides gcc-10 by default.
+CC ?= cc
 CFLAGS ?= -g -Wall -O2
-CXX ?= g++-10
+CXX ?= c++
 CXXFLAGS ?= -g -Wall -O2
 CARGO ?= cargo
 RUSTFLAGS ?= -g

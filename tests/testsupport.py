@@ -39,8 +39,19 @@ def assert_executable(executable: str, msg: str, path: Optional[str] = None) -> 
     exits if program does not exists
     """
     if not find_executable(executable, path):
-        print(msg, file=sys.stderr)
+        warn(msg)
         sys.exit(1)
+
+
+def ensure_library(name: str, msg: Optional[str] = None) -> Path:
+    p = find_library(name)
+    if not p:
+        if msg is None:
+            warn(f"Cannot find library {name}")
+        else:
+            warn(msg)
+        sys.exit(1)
+    return p
 
 
 def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
@@ -95,7 +106,7 @@ def find_executable(executable: str, path: Optional[str] = None) -> Optional[str
         return None
 
 
-def project_path() -> str:
+def project_dirs() -> List[Path]:
     dirs = [
         # Add project root to PATH
         PROJECT_ROOT,
@@ -104,6 +115,19 @@ def project_path() -> str:
         # add Rust debug directory
         PROJECT_ROOT.joinpath("target", "debug"),
     ]
+    return dirs
+
+
+def find_library(name: str, dirs: List[Path] = project_dirs()) -> Optional[Path]:
+    for dir in dirs:
+        libpath = dir.joinpath(name)
+        if libpath.exists():
+            return libpath
+    return None
+
+
+def project_path() -> str:
+    dirs = project_dirs()
     return os.pathsep.join(map(str, dirs))
 
 
@@ -123,10 +147,12 @@ def run_project_executable(
     fullpath = find_executable(exe, path)
     if fullpath is None:
         paths = path.split(os.pathsep)
-        locations = '\n  '.join(os.path.join(path, exe) for path in paths)
+        locations = "\n  ".join(os.path.join(path, exe) for path in paths)
 
-        raise OSError(f"executable '{exe}' not found. The following locations where considered:\n  {locations}")
-    return run([fullpath] + args, extra_env, stdin, stdout, input, check)
+        raise OSError(
+            f"executable '{exe}' not found. The following locations where considered:\n  {locations}"
+        )
+    return run([fullpath] + args, extra_env, stdin, stdout, input=input, check=check)
 
 
 def run(
@@ -134,6 +160,7 @@ def run(
     extra_env: Dict[str, str] = {},
     stdin: _FILE = None,
     stdout: _FILE = None,
+    stderr: _FILE = None,
     input: Optional[str] = None,
     check: bool = True,
     shell: bool = False,
@@ -156,12 +183,15 @@ def run(
         pretty_cmd += f" < {stdin.name}"
     if isinstance(stdout, io.IOBase):
         pretty_cmd += f" > {stdout.name}"
+    if isinstance(stderr, io.IOBase):
+        pretty_cmd += f" 2> {stderr.name}"
     info(pretty_cmd)
     return subprocess.run(
         cmd[0] if shell else cmd,
         cwd=PROJECT_ROOT,
         stdin=stdin,
         stdout=stdout,
+        stderr=stderr,
         check=check,
         env=env,
         text=True,

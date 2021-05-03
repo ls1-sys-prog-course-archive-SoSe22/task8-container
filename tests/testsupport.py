@@ -134,6 +134,19 @@ def project_path() -> str:
 _FILE = Union[None, int, IO[Any]]
 
 
+def find_project_executable(exe: str) -> str:
+    path = project_path()
+    fullpath = find_executable(exe, path)
+    if fullpath is not None:
+        return fullpath
+    paths = path.split(os.pathsep)
+    locations = "\n  ".join(os.path.join(path, exe) for path in paths)
+
+    raise OSError(
+        f"executable '{exe}' not found. The following locations where considered:\n  {locations}"
+    )
+
+
 def run_project_executable(
     exe: str,
     args: List[str] = [],
@@ -141,18 +154,18 @@ def run_project_executable(
     stdin: _FILE = None,
     stdout: _FILE = None,
     input: Optional[str] = None,
+    timeout: Optional[int] = None,
     check: bool = True,
 ) -> "subprocess.CompletedProcess[Text]":
-    path = project_path()
-    fullpath = find_executable(exe, path)
-    if fullpath is None:
-        paths = path.split(os.pathsep)
-        locations = "\n  ".join(os.path.join(path, exe) for path in paths)
-
-        raise OSError(
-            f"executable '{exe}' not found. The following locations where considered:\n  {locations}"
-        )
-    return run([fullpath] + args, extra_env, stdin, stdout, input=input, check=check)
+    return run(
+        [find_project_executable(exe)] + args,
+        extra_env,
+        stdin,
+        stdout,
+        input=input,
+        check=check,
+        timeout=timeout,
+    )
 
 
 def run(
@@ -162,6 +175,7 @@ def run(
     stdout: _FILE = None,
     stderr: _FILE = None,
     input: Optional[str] = None,
+    timeout: Optional[int] = None,
     check: bool = True,
     shell: bool = False,
 ) -> "subprocess.CompletedProcess[Text]":
@@ -192,6 +206,7 @@ def run(
         stdin=stdin,
         stdout=stdout,
         stderr=stderr,
+        timeout=timeout,
         check=check,
         env=env,
         text=True,

@@ -188,6 +188,8 @@ def run(
     for k, v in extra_env.items():
         env_string.append(f"{k}={v}")
     pretty_cmd = "$ "
+    if input is not None:
+        pretty_cmd += f"echo {quote(input)} |"
     if len(extra_env) > 0:
         pretty_cmd += " ".join(env_string) + " "
     if shell:

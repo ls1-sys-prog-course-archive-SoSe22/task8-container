@@ -2,33 +2,33 @@
 
 Your task is to build a debugging tool called `nix-build-shell` for the [Nix
 package manager](https://nixos.org/download.html)  to help reproduce the sandbox
-environments of failed builds by re-instantiating your own sandbox but provide
+environments of failed builds by re-instantiating your own sandbox that provides
 users interactive access. Nix is a package manager that can be installed side by
-side to conventional package managers i.e. apt as it uses a different directory
+side with conventional package managers (i.e. apt) as it uses a different directory
 for installing packages (`/nix`). Packages in Nix are described by the Nix
 expression language. Most packages come from a curated collection called
-[nixpkgs](https://github.com/NixOS/nixpkgs/), which provides pre-build packages
+[nixpkgs](https://github.com/NixOS/nixpkgs/), which provides pre-built packages
 from a service called the binary cache.  When Nix evaluates a package
 description that is not present in the binary cache it will attempt to build it
 locally. 
 
-To enforce reproducibility while building, it makes use of sandboxing technology
+To enforce reproducibility while building it makes use of sandboxing technologies
 of the underlying operating system. It then isolates the build from the outside
-world and only provides access tool dependencies that have been specified in the
+world and only provides access to dependencies that have been specified in the
 build description and prohibits network access. It also helps to normalize the
-build environment further by having i.e. by using the same user, hostname etc on
+build environment further by having, for example, the same user and hostname etc. on
 each machine. 
 
 The concrete sandbox environment might look different depending on the operating
 system (i.e. MacOS vs. Linux). For this assignment you only need to implement
 the Linux part.  The first part of [this
 talk](https://www.youtube.com/watch?v=ULqoCjANK-I) explains in depth what this
-environment looks like.
+environment looks like, however this is not compulsory viewing to complete the task.
 
-While the sandbox greatly helps with reproducibility, it might difficult at time
-to figure out why a build failed. The normal work flow is to change the build
+While the sandbox greatly helps with reproducibility, it might be difficult at times
+to figure out why a build has failed. The normal work flow is to change the build
 description to include some debug statements or to guess what is missing based
-on the error messages from the build output and than restart the (lenghty) build
+on the error messages from the build output and then restart the (lenghty) build
 process. A better workflow would be to provide the user an interactive shell
 inside this build enviroment that contain the current produced files from build.
 
@@ -39,14 +39,14 @@ But first of all [install Nix](https://nix.dev/tutorials/install-nix) install
 Nix on any Linux distribution or Windows (via WSL)  via the recommended
 multi-user installation.
 
-On ubuntu you may need to install the following first (or the equivalent
+On ubuntu you may first need to install the following (or the equivalent
 packages in your own distribution):
 
 ``` console
 sudo apt update && sudo apt install curl xz-utils rsync
 ```
 
-Than run the following command to nix itself.
+Then run the following command to install Nix itself.
 
 ``` console
 $ sh <(curl -L https://nixos.org/nix/install) --daemon
@@ -68,14 +68,13 @@ $ nix-shell -p nix-info --run "nix-info -m"
 
 Most importanly make sure that the sandbox is enabled (sandbox: `yes` in the
 command output of the command above).  If the above command `nix-shell` is not
-found try to open a new terminal or run `source /etc/profile` within the same
-terminal in order to update the `$PATH` variable to include the nix commands.
+found, try to open a new terminal or run `source /etc/profile` within the same
+terminal in order to update the `$PATH` variable to include the Nix commands.
 
-Once nix is working, you can try building the demo packages from this repository.
+Once Nix is working, you can try building the demo packages from this repository.
 
-When using the `nix-build` tool for building a package one can specify a
-parameter `--keep-failed`, which makes the build process to not throw away
-already build artifacts.
+When using the `nix-build` tool for building a package, one can specify a
+parameter `--keep-failed`, which prevents the build process from deleting already built artifacts.
 
 The first package should not fail (change to the repository root before
 executing the command):
@@ -108,7 +107,8 @@ checking for references to /build/ in /nix/store/w2w9f40a4fgb5dkhrbq1b6blz716f6z
 /nix/store/w2w9f40a4fgb5dkhrbq1b6blz716f6zl-hello
 ```
 
-The build package is also symlinked to the current directory
+The build package is also symlinked to the current directory:
+
 ```console
 $ realpath ./result/
 /nix/store/s2zw514iw2rl7r4wzxd8k84yc139v24d-hello
@@ -116,8 +116,8 @@ $ ./result/bin/hello
 hello world
 ```
 
-The next package is a rust package that is intended fail to build because of missing
-dependencies (see comment in the file to make the build work)
+The next package is a rust package that is intended to fail to build because of some missing
+dependencies (see comment in the file to make the build work):
 
 ``` console
 $ nix-build --keep-failed ./nix/wttr/default.nix
@@ -295,17 +295,17 @@ drwxr-xr-x   19 nixbld1  nixbld          20 Jan  1  1970 wttr-vendor.tar.gz
 ```
 
 Additionally this task requires unprivileged username spaces to be enabled.
-This may not be enabled in all Linux distribution by default. One can enable it using
+This may not be enabled in all Linux distributions by default. One can enable it using
 [this guide](https://github.com/nix-community/nix-user-chroot#check-if-your-kernel-supports-user-namespaces-for-unprivileged-users).
 
 # The task
 
-Your task is to write a sandbox tool that can take the above build directory of
-a failed build. It accepts as the first argument the build directory followed by
-the commands with its argument that should be run in the build sandbox.  The
-sandbox should be as close as possible to the sandbox environment that nix
+Your task is to write a `nix-build-shell` that takes the above build directory of
+a failed build as the first argument of the build directory followed by
+the commands with its argument that should be run in the build sandbox. The
+sandbox should be as close as possible to the sandbox environment that Nix
 spawns. What this environment looks like will be explained in the rest of this
-document. Nix makes heavy user of namespaces which includes:
+document. Nix relies on the use of Linux namespaces which includes:
 
 - User namespaces
 - Mount namespaces
@@ -315,7 +315,7 @@ document. Nix makes heavy user of namespaces which includes:
 - PID namespaces
 
 It is possible to perform all operations without root when user namespaces are
-used.  If you get the EPERM errno value you need to re-think the order in which
+used.  If you get the EPERM error value you need to re-think the order in which
 you are applying your operations.
 
 # Test 1: test_basic_command.py
@@ -328,14 +328,14 @@ declared in this file.  You can have a look for a line formatted like this:
 declare -x SHELL="/nix/store/a4yw1svqqk4d8lhwinn9xp847zz9gfma-bash-4.4-p23/bin/bash"
 ```
 
-Parse this string from env-vars and than run the shell executable like this in our sandbox tool nix-build-shell using the appropriate syscall:
+Parse this string from env-vars and then run the shell executable like this in our sandbox tool nix-build-shell using the appropriate syscall:
 
 ``` console
 # The below $SHELL should be replaced with the content of env-vars that was parsed from env-vars file in the build directory
 $SHELL -c 'source /build/env-vars; exec "$@"' -- arg1 arg2 ...
 ```
 
-Example run with the SHELL value from above output
+Below is an example usage with the SHELL value from above output:
 
 ``` console
 nix-build-shell build-dir echo hello
@@ -348,8 +348,9 @@ $ /nix/store/a4yw1svqqk4d8lhwinn9xp847zz9gfma-bash-4.4-p23/bin/bash -c 'source /
 hello
 ```
 
-Tip: Until your sandbox tool can bind mount build directory to `/build` you can
-symlink the build directory `/build` on your host to the build directory left by
+Tip: Until your sandbox tool can fully set up the sandbox environment you
+
+irectory `/build` on your host to the build directory left by
 nix-build for testing.
 
 

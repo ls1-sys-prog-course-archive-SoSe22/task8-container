@@ -508,5 +508,5 @@ to this directory. `nix-build-shell` should do the same.
 
 # Test 6: test_pid_ipc_namespace.py
 
-This test simply checks if the Pid and IPC namespace is created
-and the current proc interface was mounted for the current Pid namespace.
+This test checks if the Pid and IPC namespace is created and the current proc
+interface was mounted for the current Pid namespace.

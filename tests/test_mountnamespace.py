@@ -23,7 +23,7 @@ def main() -> None:
             ["find", "/dev", "-maxdepth", "1", "-printf", "%f,%y,%l,\n"],
         )
         sorted_dev = "\n".join(sorted(dev.split("\n")))
-        expected = """dev,d,d,,
+        expected = """dev,d,,
 fd,l,/proc/self/fd,
 full,c,,
 kvm,c,,

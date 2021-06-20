@@ -20,24 +20,24 @@ def main() -> None:
     with subtest("Check /dev directory"):
         dev = nix_build_shell(
             builddir.path,
-            ["find", "/dev", "-maxdepth", "1", "-printf", "%f,%y,%Y,%l,\n"],
+            ["find", "/dev", "-maxdepth", "1", "-printf", "%f,%y,%l,\n"],
         )
         sorted_dev = "\n".join(sorted(dev.split("\n")))
         expected = """dev,d,d,,
-fd,l,d,/proc/self/fd,
-full,c,c,,
-kvm,c,c,,
-null,c,c,,
-ptmx,c,c,,
-pts,d,d,,
-random,c,c,,
-shm,d,d,,
-stderr,l,c,/proc/self/fd/2,
-stdin,l,c,/proc/self/fd/0,
-stdout,l,p,/proc/self/fd/1,
-tty,c,c,,
-urandom,c,c,,
-zero,c,c,,"""
+fd,l,/proc/self/fd,
+full,c,,
+kvm,c,,
+null,c,,
+ptmx,c,,
+pts,d,,
+random,c,,
+shm,d,,
+stderr,l,/proc/self/fd/2,
+stdin,l,/proc/self/fd/0,
+stdout,l,/proc/self/fd/1,
+tty,c,,
+urandom,c,,
+zero,c,,"""
         result = list(
             unified_diff(
                 sorted_dev.splitlines(keepends=True), expected.splitlines(keepends=True)

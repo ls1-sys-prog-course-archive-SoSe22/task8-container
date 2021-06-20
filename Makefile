@@ -27,3 +27,6 @@ all:
 # Usually there is no need to modify this
 check: all
 	$(MAKE) -C tests check
+
+clean:
+	rm -rf tests/failed-build-cache

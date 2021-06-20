@@ -59,7 +59,7 @@ class BuildDir:
         info(f"(Cached) Build path {self.path}")
         res = run(
             [
-                "nix-build",
+                NIX_BUILD,
                 "--keep-failed",
                 "--builders",
                 "",

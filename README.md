@@ -298,7 +298,6 @@ drwxrwxrwt    3 root     root             3 Jun 20 12:11 ..
 drwxr-xr-x    2 nixbld1  nixbld           3 Jun 20 12:11 .cargo
 -rw-r--r--    1 nixbld1  nixbld           0 Jun 20 12:11 .package-cache
 -rw-r--r--    1 nixbld1  nixbld        5531 Jun 20 12:11 env-vars
--rw-------    1 nixbld1  nixbld         130 Jun 20 12:11 tmp.GSPTItShPm
 drwxr-xr-x    5 nixbld1  nixbld           9 Jan  1  1970 wttr
 drwxr-xr-x   19 nixbld1  nixbld          20 Jan  1  1970 wttr-vendor.tar.gz
 ```

@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
 /nix-build-shell
+/tests/failed-build-cache
 
 # Compiled Object files
 *.slo

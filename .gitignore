@@ -1,5 +1,6 @@
 # Prerequisites
 *.d
+/nix-build-shell
 
 # Compiled Object files
 *.slo

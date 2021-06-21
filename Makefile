@@ -14,11 +14,11 @@ all:
 
 # C example:
 #all:
-#	$(CC) $(CFLAGS) -o task-name task-name.c
+#	$(CC) $(CFLAGS) -o nix-build-shell nix-build-shell.c
 
 # C++ example:
 #all:
-#	$(CXX) $(CXXFLAGS) -o task-name task-name.cpp
+#	$(CXX) $(CXXFLAGS) -o nix-build-shell nix-build-shell.cpp
 
 # Rust example:
 #all:

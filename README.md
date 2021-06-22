@@ -407,12 +407,13 @@ definition for Rust in the `ifreq` module.
 
 To ensure the filesystem layout looks the same for all builds, Nix employs mount
 namespaces. It also ensures that no other files but the specified dependencies
-are exposed to the build process.  The source code and build directory are
-mounted `/build`.
+are exposed to the build process. The source code and build directory is located
+in `/build`.
 
-Since the build directory of a failing Nix build is owned by the build user
-that performed the build, it is necessary to copy those files to a new directory
-so that they become writeable and owned by the current running user.
+Since the build directory of a failing Nix build is owned by the build user that
+performed the build, it is necessary to copy those files to a new directory so
+that they become writeable and owned by the current running user that runs
+`nix-build-shell`
 
 One way to do so is to create a temporary directory (i.e. `mkdtemp`) and prepare
 the new root in there. There is  also a `tmp.rs` module  available for Rust Users. 
@@ -433,12 +434,16 @@ users on the host.
 
 The build sandbox should only contain the following top level directories:
 
-`/build`, `/etc`, `/dev`, `/tmp` and `/proc`.
+`/nix`, `/build`, `/etc`, `/dev`, `/tmp` and `/proc`.
 
-Bind mount the build directory passed to the `nix-build-shell` program to
-`/build`. Bind mounts are mounts that instead of mounting new filesystems, create mirrors of already accessible files or directories to a different location in the filesystem tree. The `mount()` syscall therefore accepts a `MS_BIND` flag to perform a bind
-mount. The target of the mount operation must exist. To bind mount a directory
-the target must be a directory. For files, the target must be a file.
+Bind mount the `/nix` directory to `/nix` in the sandbox.
+
+Bind mounts are mounts that instead of mounting new filesystems, create mirrors
+of already accessible files or directories to a different location in the
+filesystem tree. The `mount()` syscall therefore accepts a `MS_BIND` flag to
+perform a bind mount. The target of the mount operation must exist. To bind
+mount a directory the target must be a directory. For files, the target must be
+a file.
 
 The `/dev` directory has a subset of device nodes that are commonly available:
 

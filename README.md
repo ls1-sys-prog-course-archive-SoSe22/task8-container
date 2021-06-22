@@ -349,7 +349,7 @@ Below is an example usage with the SHELL value from above output:
 nix-build-shell build-dir echo hello
 ```
 
-should run:
+should run (tip: you need to concat your arguments with the arguments you get via argv for that):
 
 ``` console
 $ /nix/store/a4yw1svqqk4d8lhwinn9xp847zz9gfma-bash-4.4-p23/bin/bash -c 'source /build/env-vars; exec "$@"' -- echo hello ...

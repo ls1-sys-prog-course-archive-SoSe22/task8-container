@@ -59,7 +59,7 @@ zero,c,,"""
         ), f"Expected filesystem '{expected}', got '{output}'"
 
     with subtest("check /etc directory"):
-        check_file("/etc/group", "root:x:0:\nnixbld:!:1000:\nnogroup:x:65534:")
+        check_file("/etc/group", "root:x:0:\nnixbld:!:100:\nnogroup:x:65534:")
         check_file("/etc/hosts", "127.0.0.1 localhost\n::1 localhost")
         check_file(
             "/etc/passwd",

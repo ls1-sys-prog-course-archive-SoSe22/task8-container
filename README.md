@@ -456,6 +456,12 @@ The `/dev` directory has a subset of device nodes that are commonly available:
 - /dev/zero
 - /dev/ptmx
 
+Some systems may not have `/dev/kvm`, it can be created using: 
+
+```console
+$ mknod /dev/kvm c 10 $(grep '\<kvm\>' /proc/misc | cut -f 1 -d' ')`
+```
+
 Like Nix, `nix-build-shell` can bind mount those from existing files on the host.
 
 Also bind mount the following directory, which is needed to control the connected terminal:

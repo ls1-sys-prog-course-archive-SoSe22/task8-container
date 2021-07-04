@@ -1,5 +1,8 @@
 # Containers
 
+General introduction to containers/namespaces/cgroups (40min): https://www.youtube.com/watch?v=GMs3kLteZvk
+Assignment explained (10min): https://www.youtube.com/watch?v=INyb4Rj073U
+
 Your task is to build a debugging tool called `nix-build-shell` for the [Nix
 package manager](https://nixos.org/download.html)  to help reproduce the sandbox
 environments of failed builds by re-instantiating your own sandbox that provides

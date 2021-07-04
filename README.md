@@ -1,6 +1,7 @@
 # Containers
 
 General introduction to containers/namespaces/cgroups (40min): https://www.youtube.com/watch?v=GMs3kLteZvk
+Slides: https://github.com/ls1-sys-prog-course/docs/blob/main/slides/08-container.pdf
 Assignment explained (10min): https://www.youtube.com/watch?v=INyb4Rj073U
 
 Your task is to build a debugging tool called `nix-build-shell` for the [Nix

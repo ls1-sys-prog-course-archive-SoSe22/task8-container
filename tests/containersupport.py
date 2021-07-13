@@ -43,7 +43,7 @@ def nix_build_shell(builddir: Path, cmd: List[str]) -> str:
 def ensure_ns_changed(builddir: Path, which: str) -> None:
     info(f"Check if our process is in a {which} namespace")
     our_ns = os.readlink(f"/proc/self/ns/{which}")
-    target_ns = nix_build_shell(builddir, ["ls", f"/proc/self/ns/{which}"])
+    target_ns = nix_build_shell(builddir, ["readlink", f"/proc/self/ns/{which}"])
     assert (
         our_ns != target_ns
     ), f"Expected command to run in a new {which} namespace, but current userns {our_ns} matches the process namespace {target_ns}"

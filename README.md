@@ -420,11 +420,12 @@ that they become writeable and owned by the current running user that runs
 `nix-build-shell`
 
 One way to do so is to create a temporary directory (i.e. `mkdtemp`) and prepare
-the new root in there. There is  also a `tmp.rs` module  available for Rust Users. 
-To simplify the process, one can copy the source using the `cp`
-command with `-a` to make sure all file types/attributes are transferred
-correctly. Spawning a process however might need to be done before creating any
-namespaces as it might make it impossible to launch the final command.
+the new root in there. There is  also a `tmp.rs` module  available for Rust
+Users.  To simplify the process, one can copy the source using the `cp` command
+with `-a` to make sure all file types/attributes are transferred correctly.
+Spawning a process for copying however might need to be done before creating any
+namespaces as it might make it impossible to launch the command that was passed
+to nix-build-shell.
 
 In the following the document assumes that all paths are relative to this
 temporary chroot directory.  I.e. `/build` in the final build sandbox filesystem

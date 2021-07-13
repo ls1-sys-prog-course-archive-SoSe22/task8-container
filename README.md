@@ -514,7 +514,7 @@ and `/etc/hosts` should contain:
 ::1 localhost
 ```
 
-Also mount `procfs` to `/proc` in the sandbox directory.  Note that once your
+Also mount new instance of `procfs` to `/proc` in the sandbox directory. Note that once your
 `nix-build-shell` enables PID namespaces, you need to mount procfs after forking
 into a child process. This is because the caller of `unshare` is not yet amember
 of the new PID namespace, unlike any child process of it.

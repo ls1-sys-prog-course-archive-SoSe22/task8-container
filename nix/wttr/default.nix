@@ -3,7 +3,7 @@
 pkgs.rustPlatform.buildRustPackage {
   name = "wttr";
   src = ./.;
-  cargoSha256 = "sha256-UzMNmTqiQb/s9EU+p6cjDpFel1wkDsrrPWLzPWm/XiM=";
+  cargoLock.lockFile = ./Cargo.lock;
 
   ## uncommenting these lines will make the build suceed
   #nativeBuildInputs = [ pkgs.pkg-config ];

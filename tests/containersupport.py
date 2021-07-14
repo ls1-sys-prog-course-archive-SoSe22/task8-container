@@ -35,7 +35,7 @@ def nix_build_shell(builddir: Path, cmd: List[str]) -> str:
     )
     assert (
         proc.returncode == 0
-    ), "nix-build-shell {builddir} {' '.join(cmd)} failed with {proc.returncode}"
+    ), f"nix-build-shell {builddir} {' '.join(cmd)} failed with {proc.returncode}"
     print(proc.stdout)
     return proc.stdout.strip()
 

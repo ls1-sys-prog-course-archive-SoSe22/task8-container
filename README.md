@@ -432,7 +432,7 @@ temporary chroot directory.  I.e. `/build` in the final build sandbox filesystem
 would be in `$tmpdir/build` when preparing the chroot.
 
 When creating the mount namespace, one must also make sure that all mounts are mounted as
-private. This can be done by calling mount with the MS_REC|MS_PRIVATE|MS_BIND
+private. This can be done by calling mount with the `MS_REC|MS_PRIVATE`
 option set on the root file system `/`. This has the effect that mounts are not
 visible to other users. The mount namespace hides the mount events from the other 
 users on the host.

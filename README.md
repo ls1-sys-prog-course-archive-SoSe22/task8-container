@@ -4,10 +4,17 @@ General introduction to containers/namespaces/cgroups (40min): https://www.youtu
 Slides: https://github.com/ls1-sys-prog-course/docs/blob/main/slides/08-container.pdf
 Assignment explained (10min): https://www.youtube.com/watch?v=INyb4Rj073U
 
-Your task is to build a debugging tool called `nix-build-shell` for the [Nix
-package manager](https://nixos.org/download.html)  to help reproduce the sandbox
+## Intro
+
+[Nix](https://nixos.org/download.html) is a package manager which follows functional programming paradigms. 
+It declaratively defines all inputs for package builds and build them in a sandbox to ensure reproducability. 
+Your task is to build a debugging tool called `nix-build-shell` for nix to help reproduce the sandbox
 environments of failed builds by re-instantiating your own sandbox that provides
-users interactive access. Nix is a package manager that can be installed side by
+users interactive access. 
+
+### Nix 101
+
+Nix is a package manager that can be installed side by
 side with conventional package managers (i.e. apt) as it uses a different directory
 for installing packages (`/nix`). Packages in Nix are described by the Nix
 expression language. Most packages come from a curated collection called
@@ -25,19 +32,20 @@ each machine.
 
 The concrete sandbox environment might look different depending on the operating
 system (i.e. MacOS vs. Linux). For this assignment you only need to implement
-the Linux part.  The first part of [this
+the Linux part. The first part of [this
 talk](https://www.youtube.com/watch?v=ULqoCjANK-I) explains in depth what this
 environment looks like, however this is not compulsory viewing to complete the task.
+
+### Motivation: lacking debuggability of nix builds
 
 While the sandbox greatly helps with reproducibility, it might be difficult at times
 to figure out why a build has failed. The normal work flow is to change the build
 description to include some debug statements or to guess what is missing based
 on the error messages from the build output and then restart the (lenghty) build
 process. A better workflow would be to provide the user an interactive shell
-inside this build enviroment that contain the current produced files from build.
+inside this build enviroment that contains the current produced files from build.
 
-For demonstration this repo contains two packages: a package that builds
-properly and a package that will fail during the build.
+## Install Nix
 
 But first of all [install Nix](https://nix.dev/tutorials/install-nix) install
 Nix on any Linux distribution or Windows (via WSL)  via the recommended
@@ -75,7 +83,11 @@ command output of the command above).  If the above command `nix-shell` is not
 found, try to open a new terminal or run `source /etc/profile` within the same
 terminal in order to update the `$PATH` variable to include the Nix commands.
 
-Once Nix is working, you can try building the demo packages from this repository.
+## Build demo packages
+
+Once Nix is working, you can try building the two demo packages from this repository:
+a package that builds properly and a package that will fail during the build.
+
 
 When using the `nix-build` tool for building a package, one can specify a
 parameter `--keep-failed`, which prevents the build process from deleting already built artifacts.
@@ -414,6 +426,8 @@ namespaces. It also ensures that no other files but the specified dependencies
 are exposed to the build process. The source code and build directory is located
 in `/build`.
 
+### 5.1 Build files
+
 Since the build directory of a failing Nix build is owned by the build user that
 performed the build, it is necessary to copy those files to a new directory so
 that they become writeable and owned by the current running user that runs
@@ -431,6 +445,8 @@ In the following the document assumes that all paths are relative to this
 temporary chroot directory.  I.e. `/build` in the final build sandbox filesystem
 would be in `$tmpdir/build` when preparing the chroot.
 
+### 5.2 Mount namespace
+
 When creating the mount namespace, one must also make sure that all mounts are mounted as
 private. This can be done by calling mount with the `MS_REC|MS_PRIVATE`
 option set on the root file system `/`. This has the effect that mounts are not
@@ -439,7 +455,9 @@ users on the host.
 
 The build sandbox should only contain the following top level directories:
 
-`/nix`, `/build`, `/etc`, `/dev`, `/tmp` and `/proc`.
+`/nix`, `/build`, `/bin`, `/etc`, `/dev`, `/tmp` and `/proc`.
+
+### 5.3 (Bind) mounts
 
 Bind mount the `/nix` directory to `/nix` in the sandbox.
 
@@ -450,7 +468,8 @@ perform a bind mount. The target of the mount operation must exist. To bind
 mount a directory the target must be a directory. For files, the target must be
 a file.
 
-The `/dev` directory has a subset of device nodes that are commonly available:
+The `/dev` directory has a subset of device nodes that are commonly available.
+Like Nix, `nix-build-shell` can bind mount those from existing files on the host:
 
 - /dev/full
 - /dev/kvm
@@ -461,13 +480,14 @@ The `/dev` directory has a subset of device nodes that are commonly available:
 - /dev/zero
 - /dev/ptmx
 
-Some systems may not have `/dev/kvm`, it can be created using: 
+Some systems may not have `/dev/kvm`.
+Non-linux systems such as Windows Subsystem for Linux, /dev/kvm may not work at all. 
+Otherwise it can be created using: 
 
 ```console
-$ mknod /dev/kvm c 10 $(grep '\<kvm\>' /proc/misc | cut -f 1 -d' ')`
+$ mknod /dev/kvm c 10 $(grep '\<kvm\>' /proc/misc | cut -f 1 -d' ')
 ```
 
-Like Nix, `nix-build-shell` can bind mount those from existing files on the host.
 
 Also bind mount the following directory, which is needed to control the connected terminal:
 
@@ -478,7 +498,9 @@ to this directory and make it read/write/executable for all users/groups.
 
 In `/bin` the only program available for compability with the libc's `system()`
 function is `/bin/sh` - the POSIX shell. `nix-build-shell` should bind mount
-the shell parsed in `Test 1` from env-vars to `/bin/sh` in the sandbox.
+the shell path parsed in `Test 1` from env-vars to `/bin/sh` in the sandbox.
+
+### 5.4 Static files
 
 Also create the following symlinks from proc file system to the sandbox
 directory (link target -> link name):
@@ -515,9 +537,11 @@ and `/etc/hosts` should contain:
 ::1 localhost
 ```
 
+### 5.5 Finalize
+
 Also mount new instance of `procfs` to `/proc` in the sandbox directory. Note that once your
 `nix-build-shell` enables PID namespaces, you need to mount procfs after forking
-into a child process. This is because the caller of `unshare` is not yet amember
+into a child process. This is because the caller of `unshare` is not yet a member
 of the new PID namespace, unlike any child process of it.
 
 `/tmp` should be a directory that is read/write/executable for all users and groups.
